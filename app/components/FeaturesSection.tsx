@@ -56,18 +56,18 @@ export default function FeaturesSection() {
   };
 
   return (
-    <section className="py-20 px-6">
+    <section className="py-16 sm:py-20 px-4 sm:px-6">
       <div className="max-w-6xl mx-auto">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
-          className="text-center mb-16"
+          className="text-center mb-12 sm:mb-16"
         >
-          <h2 className="text-5xl font-bold text-white mb-4">
+          <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-white mb-4">
             How It <span className="bg-gradient-to-r from-indigo-500 to-pink-500 bg-clip-text text-transparent">Works</span>
           </h2>
-          <p className="text-xl text-white/60">Six simple steps to create your comic book</p>
+          <p className="text-base sm:text-lg md:text-xl text-white/60">Six simple steps to create your comic book</p>
         </motion.div>
 
         <motion.div
@@ -75,17 +75,17 @@ export default function FeaturesSection() {
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true }}
-          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8"
         >
           {features.map((feature, i) => (
             <motion.div
               key={i}
               variants={item}
-              className="glass-card p-8 rounded-3xl hover:bg-white/15 transition-all duration-300 hover:scale-105 group"
+              className="glass-card p-6 sm:p-8 rounded-3xl hover:bg-white/15 transition-all duration-300 group"
             >
-              <div className="text-5xl mb-4 group-hover:animate-float">{feature.icon}</div>
-              <h3 className="text-2xl font-bold text-white mb-3">{feature.title}</h3>
-              <p className="text-white/60">{feature.description}</p>
+              <div className="text-4xl sm:text-5xl mb-4 group-hover:animate-float">{feature.icon}</div>
+              <h3 className="text-xl sm:text-2xl font-bold text-white mb-3">{feature.title}</h3>
+              <p className="text-sm sm:text-base text-white/60">{feature.description}</p>
             </motion.div>
           ))}
         </motion.div>

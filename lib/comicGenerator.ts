@@ -51,7 +51,6 @@ export async function generateStoryContent(
     
     console.log(`Photo context being used: ${photoContext ? 'YES' : 'NO'}`);
 
-
     const response = await openai.chat.completions.create({
       model: 'gpt-4-turbo-preview',
       messages: [
@@ -290,8 +289,18 @@ export function createDallePrompts(
     
     let prompt = '';
     
-    // Important: Explicitly tell DALL-E to NOT generate text in the image
-    const noTextInstruction = 'NO TEXT, NO WORDS, NO LETTERS, NO DIALOGUE BUBBLES, NO CAPTIONS in the image. Pure visual artwork only.';
+    // CRITICAL: Explicitly tell DALL-E to NOT generate ANY text in the image
+    const noTextInstruction = `EXTREMELY IMPORTANT - ABSOLUTELY NO TEXT OF ANY KIND IN THIS IMAGE:
+- NO WORDS
+- NO LETTERS
+- NO NUMBERS
+- NO SPEECH BUBBLES
+- NO DIALOGUE BOXES
+- NO NARRATIVE CAPTIONS
+- NO SOUND EFFECTS
+- NO LABELS
+- NO TEXT IN ANY FORM WHATSOEVER
+Generate ONLY pure visual artwork with no text elements.`;
     
     // Build stronger photo inclusion instruction
     const photoInstructions = photoDescriptions.length > 0 
@@ -299,11 +308,11 @@ export function createDallePrompts(
       : '';
     
     if (isFirst) {
-      prompt = `Establishing shot - comic book style with bold lines, vibrant colors, dynamic composition. Opening scene: ${description}${photoInstructions}\n\n${noTextInstruction}\n\nHigh quality, detailed artwork.`;
+      prompt = `Establishing shot - comic book style with bold lines, vibrant colors, dynamic composition. Opening scene: ${description}${photoInstructions}\n\n${noTextInstruction}\n\nHigh quality, detailed artwork. REMEMBER: Zero text of any kind.`;
     } else if (isLast) {
-      prompt = `Final resolution panel - comic book style with bold lines, vibrant colors, dynamic composition. Climactic scene: ${description}${photoInstructions}\n\n${noTextInstruction}\n\nHigh quality, detailed artwork.`;
+      prompt = `Final resolution panel - comic book style with bold lines, vibrant colors, dynamic composition. Climactic scene: ${description}${photoInstructions}\n\n${noTextInstruction}\n\nHigh quality, detailed artwork. REMEMBER: Zero text of any kind.`;
     } else {
-      prompt = `Action panel - comic book style with bold lines, vibrant colors, dynamic composition. Story scene: ${description}${photoInstructions}\n\n${noTextInstruction}\n\nHigh quality, detailed artwork.`;
+      prompt = `Action panel - comic book style with bold lines, vibrant colors, dynamic composition. Story scene: ${description}${photoInstructions}\n\n${noTextInstruction}\n\nHigh quality, detailed artwork. REMEMBER: Zero text of any kind.`;
     }
     
     // Keep prompt under 4000 chars (DALL-E limit)

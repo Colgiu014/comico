@@ -22,6 +22,7 @@ body {
   color: #f1f5f9;
   min-height: 100vh;
   font-family: 'Poppins', sans-serif;
+  overflow-x: hidden;
 }
 
 /* Glass morphism utility */

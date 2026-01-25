@@ -47,18 +47,18 @@ export default function TestimonialsSection() {
   };
 
   return (
-    <section className="py-20 px-6 border-t border-white/10">
+    <section className="py-16 sm:py-20 px-4 sm:px-6 border-t border-white/10">
       <div className="max-w-6xl mx-auto">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
-          className="text-center mb-16"
+          className="text-center mb-12 sm:mb-16"
         >
-          <h2 className="text-5xl font-bold text-white mb-4">
+          <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-white mb-4">
             Loved by <span className="bg-gradient-to-r from-indigo-500 to-pink-500 bg-clip-text text-transparent">Creators</span>
           </h2>
-          <p className="text-xl text-white/60">See what people love about Comico</p>
+          <p className="text-base sm:text-lg md:text-xl text-white/60">See what people love about Comico</p>
         </motion.div>
 
         <motion.div
@@ -66,19 +66,19 @@ export default function TestimonialsSection() {
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true }}
-          className="grid grid-cols-1 md:grid-cols-3 gap-8"
+          className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8"
         >
           {testimonials.map((testimonial, i) => (
             <motion.div
               key={i}
               variants={item}
-              className="glass-card p-8 rounded-2xl hover:bg-white/15 transition-all duration-300"
+              className="glass-card p-6 sm:p-8 rounded-2xl hover:bg-white/15 transition-all duration-300"
             >
               <div className="flex items-center gap-4 mb-6">
-                <div className="text-4xl">{testimonial.avatar}</div>
+                <div className="text-3xl sm:text-4xl">{testimonial.avatar}</div>
                 <div>
-                  <h3 className="text-white font-bold">{testimonial.name}</h3>
-                  <p className="text-white/60 text-sm">{testimonial.role}</p>
+                  <h3 className="text-white font-bold text-sm sm:text-base">{testimonial.name}</h3>
+                  <p className="text-white/60 text-xs sm:text-sm">{testimonial.role}</p>
                 </div>
               </div>
 

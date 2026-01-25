@@ -10,45 +10,59 @@ import Link from "next/link";
 export default function ComicHistoryPage() {
   const [comics, setComics] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const [userId] = useState(() => {
-    // Get userId from localStorage or create a new one
+  const [error, setError] = useState<string | null>(null);
+  const [userId, setUserId] = useState<string>('');
+
+  // Initialize userId on mount
+  useEffect(() => {
     if (typeof window !== 'undefined') {
       const stored = localStorage.getItem('comico_userId');
-      if (stored) return stored;
-      const newId = 'user-' + Math.random().toString(36).substr(2, 9);
-      localStorage.setItem('comico_userId', newId);
-      return newId;
+      if (stored) {
+        setUserId(stored);
+      } else {
+        const newId = 'user-' + Math.random().toString(36).substr(2, 9);
+        localStorage.setItem('comico_userId', newId);
+        setUserId(newId);
+      }
     }
-    return '';
-  });
+  }, []);
 
   useEffect(() => {
     if (!userId) return;
-    setLoading(true);
-    getUserComics(userId)
-      .then((data) => {
-        console.log('Fetched comics:', data);
-        setComics(data);
-      })
-      .catch((err) => {
+    
+    const fetchComics = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+        console.log('Fetching comics for userId:', userId);
+        const data = await getUserComics(userId);
+        console.log('Successfully fetched comics:', data);
+        setComics(data || []);
+      } catch (err) {
         console.error('Error fetching comics:', err);
-      })
-      .finally(() => setLoading(false));
+        setError(err instanceof Error ? err.message : 'Failed to load comics');
+        setComics([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    fetchComics();
   }, [userId]);
 
   return (
     <main className="overflow-hidden">
       <Navbar />
       
-      <div className="min-h-screen pt-32 pb-20 px-6">
+      <div className="min-h-screen pt-32 pb-20 px-4 sm:px-6">
         <div className="max-w-6xl mx-auto">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="text-center mb-12"
+            className="text-center mb-8 sm:mb-12"
           >
-            <h1 className="text-5xl font-bold text-white mb-4">📚 My Comic Collection</h1>
-            <p className="text-white/60 text-lg">View and manage all your created comics</p>
+            <h1 className="text-3xl sm:text-5xl font-bold text-white mb-2 sm:mb-4">📚 My Comic Collection</h1>
+            <p className="text-xs sm:text-lg text-white/60">View and manage all your created comics</p>
           </motion.div>
 
           {loading ? (
@@ -56,30 +70,46 @@ export default function ComicHistoryPage() {
               <motion.div
                 animate={{ rotate: 360 }}
                 transition={{ duration: 2, repeat: Infinity, ease: 'linear' }}
-                className="text-6xl mb-4 inline-block"
+                className="text-4xl sm:text-6xl mb-4 inline-block"
               >
                 📖
               </motion.div>
-              <p className="text-white/60 text-lg">Loading your comics...</p>
+              <p className="text-xs sm:text-lg text-white/60">Loading your comics...</p>
             </div>
+          ) : error ? (
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              className="glass-card p-6 sm:p-12 rounded-2xl text-center border-red-500/30 bg-red-500/10"
+            >
+              <div className="text-4xl sm:text-6xl mb-4 sm:mb-6">⚠️</div>
+              <h3 className="text-lg sm:text-2xl font-bold text-white mb-2 sm:mb-4">Error Loading Comics</h3>
+              <p className="text-xs sm:text-base text-white/60 mb-6 sm:mb-8">{error}</p>
+              <button
+                onClick={() => window.location.reload()}
+                className="inline-block py-3 sm:py-4 px-6 sm:px-8 rounded-xl font-bold text-sm sm:text-lg bg-gradient-to-r from-indigo-500 to-pink-500 text-white hover:shadow-lg transition-all duration-300"
+              >
+                Try Again
+              </button>
+            </motion.div>
           ) : comics.length === 0 ? (
             <motion.div
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
-              className="glass-card p-12 rounded-2xl text-center"
+              className="glass-card p-6 sm:p-12 rounded-2xl text-center"
             >
-              <div className="text-6xl mb-6">📝</div>
-              <h3 className="text-2xl font-bold text-white mb-4">No Comics Yet</h3>
-              <p className="text-white/60 mb-8">Start creating your first comic masterpiece!</p>
+              <div className="text-4xl sm:text-6xl mb-4 sm:mb-6">📝</div>
+              <h3 className="text-lg sm:text-2xl font-bold text-white mb-2 sm:mb-4">No Comics Yet</h3>
+              <p className="text-xs sm:text-base text-white/60 mb-6 sm:mb-8">Start creating your first comic masterpiece!</p>
               <Link
                 href="/create"
-                className="inline-block py-4 px-8 rounded-xl font-bold text-lg bg-gradient-to-r from-indigo-500 to-pink-500 text-white hover:shadow-lg transition-all duration-300 transform hover:scale-105"
+                className="inline-block py-3 sm:py-4 px-6 sm:px-8 rounded-xl font-bold text-sm sm:text-lg bg-gradient-to-r from-indigo-500 to-pink-500 text-white hover:shadow-lg transition-all duration-300"
               >
                 Create Your First Comic →
               </Link>
             </motion.div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
               {comics.map((comic, index) => {
                 // Parse the generatedComicData if it's a string
                 let comicContent = null;
@@ -107,7 +137,7 @@ export default function ComicHistoryPage() {
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: index * 0.1 }}
-                    className="glass-card p-6 rounded-2xl flex flex-col gap-4 hover:scale-105 transition-transform duration-300"
+                    className="glass-card p-4 sm:p-6 rounded-2xl flex flex-col gap-4 hover:bg-white/15 transition-all duration-300"
                   >
                     <div className="aspect-[3/4] bg-white/10 rounded-xl overflow-hidden flex items-center justify-center border-2 border-white/20">
                       {firstPanelImage ? (
@@ -120,16 +150,16 @@ export default function ComicHistoryPage() {
                           }}
                         />
                       ) : (
-                        <div className="text-6xl">📚</div>
+                        <div className="text-4xl sm:text-6xl">📚</div>
                       )}
                     </div>
                     
                     <div className="flex-1">
-                      <h2 className="text-xl font-bold text-white mb-2 truncate" title={comicTitle}>
+                      <h2 className="text-base sm:text-xl font-bold text-white mb-2 truncate" title={comicTitle}>
                         {comicTitle}
                       </h2>
                       
-                      <div className="flex items-center gap-2 text-white/60 text-sm mb-3">
+                      <div className="flex items-center gap-2 text-white/60 text-xs sm:text-sm mb-3 flex-wrap">
                         <span className="bg-white/10 px-2 py-1 rounded">
                           {comicContent?.panels?.length || 0} panels
                         </span>
@@ -138,14 +168,14 @@ export default function ComicHistoryPage() {
                         </span>
                       </div>
                       
-                      <p className="text-white/60 text-sm mb-4">
+                      <p className="text-white/60 text-xs sm:text-sm mb-4">
                         {comic.selectedPlan || 'Pro Comic'}
                       </p>
                     </div>
                     
                     <Link
                       href={`/create?comicId=${comic.id}`}
-                      className="py-3 px-4 rounded-xl bg-gradient-to-r from-indigo-500 to-pink-500 text-white font-bold text-center hover:shadow-lg transition-all transform hover:scale-105"
+                      className="py-2 sm:py-3 px-3 sm:px-4 rounded-xl bg-gradient-to-r from-indigo-500 to-pink-500 text-white font-bold text-xs sm:text-sm text-center hover:shadow-lg transition-all duration-300"
                     >
                       View Comic →
                     </Link>

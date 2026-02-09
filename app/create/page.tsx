@@ -5,6 +5,8 @@ import { useState, useEffect, Suspense, useRef } from 'react';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import FileUpload from '../components/FileUpload';
+import ProtectedRoute from '../components/ProtectedRoute';
+import { useAuth } from '@/lib/authContext';
 import { useComicStore } from '@/lib/store';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
@@ -251,23 +253,13 @@ function CreatePageContent() {
     setGeneratedComic,
     reset,
   } = useComicStore();
+  const { user } = useAuth();
   const [isGenerating, setIsGenerating] = useState(false);
   const [generatedComic, setGeneratedComicLocal] = useState<string | null>(null);
   const [step, setStep] = useState<'upload' | 'story' | 'generate' | 'review'>('upload');
   const searchParams = useSearchParams();
   const viewComicId = searchParams.get('comicId');
   const [loadingComic, setLoadingComic] = useState(false);
-  const [userId] = useState(() => {
-    // Get userId from localStorage or create a new one
-    if (typeof window !== 'undefined') {
-      const stored = localStorage.getItem('comico_userId');
-      if (stored) return stored;
-      const newId = 'user-' + Math.random().toString(36).substr(2, 9);
-      localStorage.setItem('comico_userId', newId);
-      return newId;
-    }
-    return 'user-' + Math.random().toString(36).substr(2, 9);
-  });
 
   // Load existing comic if comicId is provided
   useEffect(() => {
@@ -305,19 +297,24 @@ function CreatePageContent() {
       return;
     }
 
+    if (!user?.uid) {
+      alert('You must be logged in to generate a comic');
+      return;
+    }
+
     setIsGenerating(true);
     setStep('generate');
 
     try {
       // Save to Firebase first
-      const newComicId = await saveToFirebase(userId);
+      const newComicId = await saveToFirebase(user.uid);
       
       // Generate comic using client-side OpenAI calls
       const comicData = await generateComicClient({
         comicId: newComicId,
         story,
         photos,
-        userId,
+        userId: user.uid,
         selectedPlan,
       });
       
@@ -709,12 +706,14 @@ function CreatePageContent() {
 
 export default function CreatePage() {
   return (
-    <Suspense fallback={
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-white/60 text-lg">Loading...</div>
-      </div>
-    }>
-      <CreatePageContent />
-    </Suspense>
+    <ProtectedRoute>
+      <Suspense fallback={
+        <div className="min-h-screen flex items-center justify-center">
+          <div className="text-white/60 text-lg">Loading...</div>
+        </div>
+      }>
+        <CreatePageContent />
+      </Suspense>
+    </ProtectedRoute>
   );
 }

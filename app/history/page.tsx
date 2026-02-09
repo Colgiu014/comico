@@ -5,37 +5,25 @@ import { getUserComics } from "@/lib/firebaseService";
 import { motion } from "framer-motion";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
+import ProtectedRoute from "../components/ProtectedRoute";
+import { useAuth } from "@/lib/authContext";
 import Link from "next/link";
 
-export default function ComicHistoryPage() {
+function ComicHistoryContent() {
   const [comics, setComics] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [userId, setUserId] = useState<string>('');
-
-  // Initialize userId on mount
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const stored = localStorage.getItem('comico_userId');
-      if (stored) {
-        setUserId(stored);
-      } else {
-        const newId = 'user-' + Math.random().toString(36).substr(2, 9);
-        localStorage.setItem('comico_userId', newId);
-        setUserId(newId);
-      }
-    }
-  }, []);
+  const { user } = useAuth();
 
   useEffect(() => {
-    if (!userId) return;
+    if (!user?.uid) return;
     
     const fetchComics = async () => {
       try {
         setLoading(true);
         setError(null);
-        console.log('Fetching comics for userId:', userId);
-        const data = await getUserComics(userId);
+        console.log('Fetching comics for userId:', user.uid);
+        const data = await getUserComics(user.uid);
         console.log('Successfully fetched comics:', data);
         setComics(data || []);
       } catch (err) {
@@ -48,7 +36,7 @@ export default function ComicHistoryPage() {
     };
     
     fetchComics();
-  }, [userId]);
+  }, [user]);
 
   return (
     <main className="overflow-hidden">
@@ -189,5 +177,13 @@ export default function ComicHistoryPage() {
 
       <Footer />
     </main>
+  );
+}
+
+export default function ComicHistoryPage() {
+  return (
+    <ProtectedRoute>
+      <ComicHistoryContent />
+    </ProtectedRoute>
   );
 }
